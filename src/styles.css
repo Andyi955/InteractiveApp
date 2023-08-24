@@ -1,0 +1,220 @@
+
+/* General page styling for the futuristic theme */
+body {
+    background-color: #111; /* Dark background */
+    color: #ddd; /* Light text color */
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    scale: 0.75;
+    
+  }
+  .header-container {
+    display: flex;          /* Aligns children horizontally */
+    align-items: center;    /* Centers children vertically */
+    justify-content: space-between; /* Distributes space between children */
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;             /* You can adjust this as needed */
+    width: 100%;            /* Adjust the width as needed */
+  }
+  
+
+  
+  #scene-and-menu {
+    margin-top: 60px; /* Add space between this and the header. Adjust as needed. */
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  
+  
+#content {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0; /* Adjust as needed */
+
+  }
+  #canvas {
+    width: 100%;
+    height: 100%;
+  }
+  #renderCanvas {
+    width: 100%;
+    height: 450px;
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+    transition: box-shadow 0.3s ease;
+  }
+/* Mood tracker styling */
+.emojis span.emoji {
+display: inline-block;
+font-size: 2rem;
+cursor: pointer;
+margin: 0 20px;
+transition: transform 0.3s ease !important; /* This ensures smooth transitions */
+}
+
+.emojis span.emoji:hover {
+    transform: scale(1.2) rotate(360deg) !important; /* This makes the emoji grow and spin */
+    color: #f00; /* Neon red on hover */
+}
+.emojis span.emoji.active {
+    background-color: #0ff; /* Neon blue when selected */
+    color: #111; /* Dark background color when selected */
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+  }
+.emojis::before, .emojis::after {
+content: "";
+position: absolute;
+top: -10px;
+left: -10px;
+right: -10px;
+bottom: -10px;
+border: 2px solid #0ff; /* Neon blue */
+border-radius: 15px;
+pointer-events: none; /* This ensures the pseudo-elements don't capture click events */
+}
+
+.emojis::after {
+top: -15px;
+left: -15px;
+right: -15px;
+bottom: -15px;
+border-color: #f00; /* Neon red */
+}
+
+
+
+#moodMessage {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #0f0; /* Neon green */
+}
+.neon-button {
+background-color: #111;
+border: none;
+color: #0ff;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+transition: all 0.5s;
+cursor: pointer;
+padding: 10px 24px;
+border-radius: 5px;
+box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+}
+
+.neon-button:hover {
+box-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 60px #0ff, 0 0 80px #0ff;
+}
+
+.neon-button.clicked {
+animation: neonGlow 1s infinite alternate;
+}
+
+@keyframes neonGlow {
+0% {
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+}
+25% {
+    box-shadow: 0 0 20px #f00, 0 0 40px #f00, 0 0 60px #f00, 0 0 80px #f00;
+}
+50% {
+    box-shadow: 0 0 20px #0f0, 0 0 40px #0f0, 0 0 60px #0f0, 0 0 80px #0f0;
+}
+75% {
+    box-shadow: 0 0 20px #00f, 0 0 40px #00f, 0 0 60px #00f, 0 0 80px #00f;
+}
+100% {
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+}
+}
+
+.emojis{
+    text-align: center;
+    position: relative;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.cameraModeButton,
+.dragModeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+  .button-container {
+    position: relative;
+    transition: width 0.3s ease;
+  }
+  
+  .scene-container {
+      display: flex;
+      align-items: center;
+  }
+  
+  .vertical-menu {
+    width: 200px; /* You can adjust this */
+    background-color: #111; /* Dark background */
+    color: #0ff; /* Neon cyan text color */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin-left: 40px;
+  }
+  
+  
+  .vertical-menu button {
+    background-color: #0ff; /* Neon cyan */
+    border: none;
+    color: #111; /* Dark text color */
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .vertical-menu button:hover {
+    background-color: #00f; /* Neon blue on hover */
+  }
+  
+
+  
+  .button-container button {
+    background-color: #0ff; /* Neon cyan */
+    color: #111; /* Dark background */
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-container button:hover {
+    background-color: #00f; /* Neon blue */
+  }
+  .emojis .happy { box-shadow: 0 0 10px #ff0, 0 0 20px #ff0, 0 0 30px #ff0, 0 0 40px #ff0; }
+  .emojis .sad { box-shadow: 0 0 10px #00f, 0 0 20px #00f, 0 0 30px #00f, 0 0 40px #00f; }
+  .emojis .angry { box-shadow: 0 0 10px #f00, 0 0 20px #f00, 0 0 30px #f00, 0 0 40px #f00; }
+  .emojis .surprised { box-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0, 0 0 40px #0f0; }
+  .emojis .relaxed { box-shadow: 0 0 10px #f0f, 0 0 20px #f0f, 0 0 30px #f0f, 0 0 40px #f0f; }
+  
+  
+  /* Add other classes for different moods */
+  
