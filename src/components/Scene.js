@@ -2,21 +2,26 @@ import React, {useCallback, useEffect, useRef } from 'react';
 import * as BABYLON from 'babylonjs';
 
 const Scene = ({
-  cubeColor,
-  cubeRef,
+  objectColor,
+  objectRef,
   cameraRef,
   originalCameraTargetRef,
   sceneRef,
   bounceAnimationCallback
 }) => {
   const canvasRef = useRef(null);
-  const cubeMaterialRef = useRef(null);
+  const objectMaterialRef = useRef(null);
+    // Define drag behavior outside of the useEffect
+    const dragBehavior = new BABYLON.PointerDragBehavior({
+      dragPlaneNormal: new BABYLON.Vector3(1, 1, 1)
+    });
+    
  
 
   const bounceAnimation = useCallback((duration = 2000, height = 0.5, loopCount = 1) => {
-    const cube = cubeRef.current;
-    if (cube) {
-      const originalY = cube.position.y;
+    const object = objectRef.current;
+    if (object) {
+      const originalY = object.position.y;
       const framesPerLoop = 60;
       const totalFrames = framesPerLoop * loopCount;
   
@@ -36,40 +41,46 @@ const Scene = ({
       }
       animation.setKeys(keys);
   
-      // Stop any existing animations on the cube
-      sceneRef.current.stopAnimation(cube);
+      // Stop any existing animations on the object
+      sceneRef.current.stopAnimation(object);
   
-      // Clear any existing animations on the cube
-      cube.animations = [];
+      // Clear any existing animations on the object
+      object.animations = [];
   
-      // Add the new animation to the cube
-      cube.animations.push(animation);
+      // Add the new animation to the object
+      object.animations.push(animation);
   
       // Begin the animation
-      const animatable = sceneRef.current.beginAnimation(cube, 0, totalFrames, true);
+      const animatable = sceneRef.current.beginAnimation(object, 0, totalFrames, true);
   
       // Stop the animation after the total duration
       setTimeout(() => {
         animatable.stop();
       }, duration * loopCount);
     }
-    },[cubeRef,sceneRef]);
+    },[objectRef,sceneRef]);
+
+    
 
     useEffect(() => {
         bounceAnimationCallback(bounceAnimation); // Pass bounceAnimation to parent through callback
       }, [bounceAnimation,bounceAnimationCallback]);
 
 
+    
   // ... useEffect hooks for initializing the scene ...
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
+    
 // Set the canvas's rendering size to match its display size
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
     // Initialize Babylon.js engine and scene
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine); // Create the scene here
+    console.log('sceneRef:', sceneRef);
+
     sceneRef.current = scene; // Assign it to the ref
 
     
@@ -86,22 +97,6 @@ canvas.height = canvas.clientHeight;
     // Create a light
     const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 1;
-
-// Create a cube
-const cube = BABYLON.MeshBuilder.CreateBox("cube", {}, scene);
-// Assign cube to the ref
-cubeRef.current = cube;
-cube.rotation = new BABYLON.Vector3(0, 0, 0); // Set initial rotation values
-
-// Define a material for the cube
-const cubeMaterial = new BABYLON.StandardMaterial("material", scene);
-cube.material = cubeMaterial;
-// Assign material to ref
-cubeMaterialRef.current = cubeMaterial;
-
-// Update the material color based on the state
-cubeMaterial.diffuseColor = BABYLON.Color3.FromHexString(cubeColor);;
-
 
 
 
@@ -120,10 +115,50 @@ cubeMaterial.diffuseColor = BABYLON.Color3.FromHexString(cubeColor);;
   };
     window.addEventListener('resize', onResize);
 
+
+    const highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
+
+
+    const onClick = (event) => {
+      const pickInfo = scene.pick(scene.pointerX, scene.pointerY);
+    
+      // If a mesh was clicked on
+      if (pickInfo && pickInfo.hit && pickInfo.pickedMesh) {
+        console.log('Mesh clicked:', pickInfo.pickedMesh.name); // Log the clicked mesh
+        highlightLayer.addMesh(pickInfo.pickedMesh, BABYLON.Color3.Green());
+    
+        // Attach the drag behavior only if it's not already attached
+        if (!dragBehavior.attachedNode) {
+          pickInfo.pickedMesh.addBehavior(dragBehavior);
+        }
+    
+        camera.detachControl(canvas);
+      } else {
+        // If the click was not on a mesh, remove any highlighting and disable dragging
+        highlightLayer.removeAllMeshes();
+    
+        if (dragBehavior.attachedNode) {
+          dragBehavior.attachedNode.removeBehavior(dragBehavior);
+        }
+    
+        camera.attachControl(canvas, true);
+      }
+    };
+    
+    // Register the event handler
+    canvas.addEventListener('click', onClick);
+
+
+
+
+
+
    
     // Clean up on unmount
     return () => {
         window.removeEventListener('resize', onResize);
+        canvas.removeEventListener('click', onClick); // Remove the click event listener
+
       engine.dispose();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,10 +166,10 @@ cubeMaterial.diffuseColor = BABYLON.Color3.FromHexString(cubeColor);;
 
 
   useEffect(() => {
-    if (cubeMaterialRef.current) {
-      cubeMaterialRef.current.diffuseColor = BABYLON.Color3.FromHexString(cubeColor);
+    if (objectMaterialRef.current) {
+      objectMaterialRef.current.diffuseColor = BABYLON.Color3.FromHexString(objectColor);
     }
-  }, [cubeColor,cubeRef]);
+  }, [objectColor,objectRef]);
 
   return <canvas ref={canvasRef} id="renderCanvas"></canvas>;
 };

@@ -2,7 +2,7 @@ import React from 'react';
 
 const ControlPanel = ({
   handleReset,
-  cubeColor,
+  objectColor,
   handleColorChange,
   handleSizeIncrease,
   handleSizeDecrease,
@@ -13,12 +13,17 @@ const ControlPanel = ({
   setBounceHeight,
   loopCount,
   setLoopCount,
-  bounceAnimation
+  bounceAnimation,
+  selectedObject
 }) => {
   return (
     <div className="vertical-menu">
       <button onClick={handleReset}>Reset</button>
-          <input type="color" value={cubeColor} onChange={handleColorChange} />
+      <input
+  type="color"
+  value={objectColor}
+  onChange={(e) => handleColorChange(e.target.value)}
+/>
           <button onClick={handleSizeIncrease}>Increase Size</button>
           <button onClick={handleSizeDecrease}>Decrease Size</button>
           <button onClick={handleWireframeToggle}>Toggle Wireframe</button>

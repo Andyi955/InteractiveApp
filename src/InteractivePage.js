@@ -1,87 +1,74 @@
-import React, { useState,useRef,useCallback } from 'react';
+import React, { useState,useCallback,useRef } from 'react';
 import Scene from './components/Scene';
 import ControlPanel from './components/ControlPanel';
-import MoodSelector from './components/MoodSelector'; 
+import MoodSelector from './components/MoodSelector';
+import useObjectControls from './hooks/useObjectControls'; 
+import ObjectMenu from './components/ObjectMenu'; 
 import * as BABYLON from 'babylonjs';
+import { SketchPicker } from 'react-color'; // Import color picker component
+
+
 import './styles.css';
 
 const InteractivePage = () => {
-  const [cubeColor, setCubeColor] = useState('#ffffff');
-  const [wireframe, setWireframe] = useState(false);
+
   const [bounceDuration, setBounceDuration] = useState(2000); // Default 2000ms
 const [bounceHeight, setBounceHeight] = useState(0.1); // Default 0.1 units
 const [bounceAnimationFunction, setBounceAnimationFunction] = useState(null);
+const [sceneObjects, setSceneObjects] = useState([]);
+const [selectedObject, setSelectedObject] = useState(null);
+const [selectedObjectColor, setSelectedObjectColor] = useState('#ffffff');
+
+
+
+
 
   const [loopCount, setLoopCount] = useState(2);
-  // Ref definitions
-  const cubeRef = useRef(null);
   const cameraRef = useRef(null);
-  const originalCameraTargetRef = useRef(null);
-  const sceneRef = useRef(null);
-  const cubeMaterialRef = useRef(null); // If you are using this ref inside Scene component
+const originalCameraTargetRef = useRef(null);
+
+const sceneRef = useRef(null);
+
+  const objectControls = useObjectControls(cameraRef,originalCameraTargetRef);
+ 
+
+  
+
 
   const bounceAnimationCallback = useCallback((bounceFunc) => {
     setBounceAnimationFunction(() => bounceFunc);
   }, []);
 
-  // ... handlers and other functions ...
-  const handleColorChange = (event) => {
-    const hexColor = event.target.value;
-    setCubeColor(hexColor); // Update the cubeColor state with the selected color
+
+  const handleObjectSelect = (object) => {
+     // Set the selected object in the useObjectControls hook
+     objectControls.objectRef.current = object;
+    // Deselect any previously selected objects
+    sceneObjects.forEach((obj) => obj.material && (obj.material.emissiveColor = new BABYLON.Color3(0, 0, 0)));
   
-    // Update the material color directly via the ref
-    if (cubeMaterialRef.current) {
-      cubeMaterialRef.current.diffuseColor = BABYLON.Color3.FromHexString(hexColor);
+    // Highlight the selected object
+    if (object.material) {
+      object.material.emissiveColor = new BABYLON.Color3(1, 0, 0); // Red highlight
     }
+  
+   
+  
+    // Optionally, you could set a selected object state and use it elsewhere
+    setSelectedObject(object);
   };
   
- 
-
-  const handleSizeIncrease = () => {
-    const cube = cubeRef.current;
-    if (cube) {
-      cube.scaling.addInPlace(new BABYLON.Vector3(0.1, 0.1, 0.1));
-    }
+  
+  const handleAddObject = (object) => {
+    setSceneObjects([...sceneObjects, object]);
   };
-
-  const handleSizeDecrease = () => {
-    const cube = cubeRef.current;
-    if (cube) {
-      cube.scaling.subtractInPlace(new BABYLON.Vector3(0.1, 0.1, 0.1));
-    }
+  const handleColorChange = (colorValue) => {
+    objectControls.handleColorChange(objectControls.objectRef.current, colorValue);
   };
-
-  const handleReset = () => {
-    const cube = cubeRef.current;
-    const camera = cameraRef.current;
-    if (cube) {
-      cube.scaling = new BABYLON.Vector3(1, 1, 1); // Reset the cube size
-      cube.rotation = new BABYLON.Vector3(0, 0, 0); // Reset the cube rotation
-      cube.position = new BABYLON.Vector3(0, 0, 0); // Reset the cube position to the center
-      cube.computeWorldMatrix(true); // Update the cube's world matrix to apply the changes immediately
-
-    }
-    if (cameraRef.current && originalCameraTargetRef.current) {
-      cameraRef.current.target.copyFrom(originalCameraTargetRef.current);
-    }
-    if (camera) {
-      camera.alpha = -Math.PI / 2;
-      camera.beta = Math.PI / 2.5;
-      camera.radius = 10;
-    }
-    // Reset the cube color to white
-    setCubeColor('#ffffff');
-    if (cubeMaterialRef.current) {
-      cubeMaterialRef.current.diffuseColor = BABYLON.Color3.FromHexString('#ffffff');
-    }
+  const handleSelectedObjectColorChange = (color) => {
+    setSelectedObjectColor(color.hex);
+    objectControls.handleColorChange(selectedObject, color.hex);
   };
-  const handleWireframeToggle = () => {
-    const cube = cubeRef.current;
-    if (cube) {
-      setWireframe(!wireframe);
-      cube.material.wireframe = !wireframe;
-    }
-  };
+  
  
 
   return (
@@ -94,26 +81,26 @@ const [bounceAnimationFunction, setBounceAnimationFunction] = useState(null);
       <div className="centering-container">
         <div id="scene-and-menu">
         <Scene
-          cubeColor={cubeColor}
-          cubeRef={cubeRef}
+          objectColor={objectControls.objectColor}
+          objectRef={objectControls.objectRef}
           cameraRef={cameraRef}
           originalCameraTargetRef={originalCameraTargetRef}
           sceneRef={sceneRef}
-          wireframe={wireframe}
-          handleSizeIncrease={handleSizeIncrease}
-          handleSizeDecrease={handleSizeDecrease}
-          handleReset={handleReset}
-          handleWireframeToggle={handleWireframeToggle}
+          wireframe={objectControls.wireframe}
+          handleSizeIncrease={objectControls.handleSizeIncrease}
+          handleSizeDecrease={objectControls.handleSizeDecrease}
+          handleReset={objectControls.handleReset}
+          handleWireframeToggle={objectControls.handleWireframeToggle}
           bounceAnimationCallback={bounceAnimationCallback} // pass callback to Scene
           />
 
           <ControlPanel
-            handleReset={handleReset}
-            cubeColor={cubeColor}
+            handleReset={objectControls.handleReset}
+            objectColor={objectControls.objectColor}
             handleColorChange={handleColorChange}
-            handleSizeIncrease={handleSizeIncrease}
-            handleSizeDecrease={handleSizeDecrease}
-            handleWireframeToggle={handleWireframeToggle}
+            handleSizeIncrease={objectControls.handleSizeIncrease}
+            handleSizeDecrease={objectControls.handleSizeDecrease}
+            handleWireframeToggle={objectControls.handleWireframeToggle}
             bounceDuration={bounceDuration}
             setBounceDuration={setBounceDuration}
             bounceHeight={bounceHeight}
@@ -122,6 +109,22 @@ const [bounceAnimationFunction, setBounceAnimationFunction] = useState(null);
             setLoopCount={setLoopCount}
             bounceAnimation={bounceAnimationFunction} // pass bounceAnimation function to ControlPanel
             />
+           <ObjectMenu
+  sceneRef={sceneRef}
+  objects={sceneObjects}
+  onObjectSelect={handleObjectSelect}
+  handleAddObject={handleAddObject}
+  objectColor={objectControls.objectColor} // Pass objectColor here
+/>
+
+    {selectedObject && (
+        <div>
+          <SketchPicker
+            color={selectedObjectColor}
+            onChangeComplete={handleSelectedObjectColorChange}
+          />
+        </div>
+    )}
         </div>
       </div>
       <MoodSelector />
