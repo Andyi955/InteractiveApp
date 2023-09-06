@@ -3,7 +3,7 @@ import * as BABYLON from 'babylonjs';
 
 
 const ObjectMenu = ({sceneRef, objects, onObjectSelect,handleAddObject,objectColor}) => {
-  const [selectedObjectType, setSelectedObjectType] = useState('');
+  const [selectedObjectType, setSelectedObjectType] = useState('cube');
 
   const addNewObject = () => {
     const scene = sceneRef.current;

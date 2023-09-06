@@ -1,0 +1,18 @@
+.futuristic-nav {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,212,255,1) 100%);
+    padding: 10px;
+    color: white;
+    margin-bottom: 50px;
+  }
+  
+  .nav-item {
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-item:hover {
+    color: #00d4ff;
+  }
+  
